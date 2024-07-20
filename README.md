@@ -2,7 +2,7 @@
 
 <br />
 <div align="center">
-  <a href="https://github.com/cavidev/python-learning-journey">
+  <a href="https://github.com/cavidev/graphql">
       <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/graphql/graphql-plain.svg" height="100" alt="docker logo"  />
   </a>
   
@@ -16,9 +16,9 @@
     <br />
     <a href="https://studio.apollographql.com/sandbox/explorer">View Demo</a>
     ·
-    <a href="https://github.com/cavidev/python-learning-journey/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
+    <a href="https://github.com/cavidev/graphql/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
     ·
-    <a href="https://github.com/cavidev/python-learning-journey/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
+    <a href="https://github.com/cavidev/graphql/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
   </p>
 </div>
 ## Enviroment

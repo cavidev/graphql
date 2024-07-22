@@ -50,6 +50,7 @@ const resolvers = {
   Query: {
     personCount: () => persons.length,
     allPersons: (_, args) => {
+      console.log(persons, typeof persons);
       if (!args.phone) return persons;
       const byPhone = (person) =>
         args.phone === "YES" ? person.phone : !person.phone;

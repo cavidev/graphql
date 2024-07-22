@@ -33,7 +33,7 @@ async function api() {
     }));
     // const jsonData = JSON.stringify(formattedData, null, 2);
     //fs.writeFileSync("users.json", jsonData, "utf-8");
-    savePersons(JSON.stringify(formattedData, null, 2));
+    savePersons(formattedData);
     return formattedData;
   } catch (error) {
     console.error("Error:", error);
@@ -44,7 +44,8 @@ export async function fetchData() {
   try {
     const data = fs.readFileSync("users.json", "utf-8");
     const users = JSON.parse(data);
-    if (!users.lenght) throw new Error("The files is empty");
+    console.log(users, typeof users);
+    if (!users.length) throw Error("The files is empty");
     return users;
   } catch (error) {
     console.error("Error leyendo el archivo:", error);

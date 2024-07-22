@@ -1,4 +1,6 @@
-import { ApolloServer, UserInputError, gql } from "apollo-server";
+import { ApolloServer } from "@apollo/server";
+import { startStandaloneServer } from "@apollo/server/standalone";
+import { GraphQLError } from "graphql";
 import { fetchData, savePersons } from "./api.js";
 import { v1 as uuid } from "uuid";
 
@@ -7,23 +9,22 @@ const updatePersons = (pUpdated) => {
   persons = pUpdated;
 };
 
-const typeDefs = gql`
+const typeDefs = `#graphql
   enum YesNo {
     YES
     NO
   }
 
   type Location {
-    city: String
+    city: String!
     state: String
-    coutry: String
   }
 
   type Person {
     id: ID!
     name: String!
     phone: String
-    location: [Location]
+    location: Location
     email: String!
     age: Int
     canDrink: Boolean
@@ -70,8 +71,10 @@ const resolvers = {
       const person = { ...args };
       // Throw a custome message if the person is not unique
       if (persons.find((p) => p.name === person.name)) {
-        throw new UserInputError("The person was previous added", {
-          invalidArgs: args.name,
+        throw new GraphQLError("User was added, please change the name...", {
+          extensions: {
+            code: "BAD_USER_INPUT",
+          },
         });
       }
       // This can be a database call.
@@ -90,8 +93,10 @@ const resolvers = {
         );
         return person;
       }
-      throw new UserInputError("The person was not fount", {
-        invalidArgs: args.name,
+      throw new GraphQLError("The person was not fount", {
+        extensions: {
+          code: "BAD_USER_INPUT",
+        },
       });
     },
     editNumber: (_, args) => {
@@ -112,7 +117,9 @@ const server = new ApolloServer({
   resolvers, // write the resolver
 });
 
-// Running
-server.listen().then(({ url }) => {
-  console.log(`🚀 Server is running ${url}`);
+// Passing an ApolloServer instance to the `startStandaloneServer` function:
+const { url } = await startStandaloneServer(server, {
+  listen: { port: 4000 },
 });
+
+console.log(`🚀  Server ready at: ${url}`);

@@ -44,6 +44,7 @@ export async function fetchData() {
   try {
     const data = fs.readFileSync("users.json", "utf-8");
     const users = JSON.parse(data);
+    if (!users.lenght) throw new Error("The files is empty");
     return users;
   } catch (error) {
     console.error("Error leyendo el archivo:", error);

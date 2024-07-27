@@ -1,6 +1,6 @@
 {
   "name": "graphql",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "main": "index.js",
   "type": "module",
   "scripts": {
@@ -13,6 +13,7 @@
   "license": "MIT",
   "description": "Diving deep into GraphQL, I have mastered the art of crafting flexible and efficient APIs that streamline data fetching and significantly enhance performance. With Apollo Server, I have learned to build robust and scalable server-side applications, harnessing the power of real-time data and sophisticated query handling.",
   "dependencies": {
+    "@apollo/datasource-rest": "^6.3.0",
     "@apollo/server": "^4.10.4",
     "graphql": "16.9.0",
     "uuid": "10.0.0"

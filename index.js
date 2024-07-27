@@ -1,11 +1,12 @@
 import { ApolloServer } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
 import { GraphQLError } from "graphql";
-import { fetchData, savePersons } from "./api.js";
+import { fetchData, saveInFile, UsersAPI } from "./api.js";
+import formatUsers from "./utils/formatUsers.js";
 import { v1 as uuid } from "uuid";
 
 let persons = await fetchData();
-const updatePersons = (pUpdated) => {
+const updateInMemory = (pUpdated) => {
   persons = pUpdated;
 };
 
@@ -33,7 +34,7 @@ const typeDefs = `#graphql
 
   type Query {
     personCount: Int!
-    allPersons(phone: YesNo): [Person]!
+    allPersons(phone: YesNo, update: YesNo, count: String): [Person]!
     findPerson(name: String!): Person
   }
 
@@ -49,12 +50,20 @@ const typeDefs = `#graphql
 const resolvers = {
   Query: {
     personCount: () => persons.length,
-    allPersons: (_, args) => {
-      console.log(persons, typeof persons);
-      if (!args.phone) return persons;
-      const byPhone = (person) =>
-        args.phone === "YES" ? person.phone : !person.phone;
-      return persons.filter(byPhone);
+    allPersons: async (_, args, { dataSources }) => {
+      if (Object.keys(args).length === 0) return persons;
+      if (args.phone) {
+        const byPhone = (person) =>
+          args.phone === "YES" ? person.phone : !person.phone;
+        return persons.filter(byPhone);
+      }
+      if (args.update === "YES") {
+        // calling API dataSources by graphql 4
+        const data = await dataSources.usersAPI.getUsers(args.count || "100");
+        updateInMemory(formatUsers(data.results));
+      }
+
+      return persons;
     },
     findPerson: (_, args) => {
       const { name } = args;
@@ -80,7 +89,7 @@ const resolvers = {
       }
       // This can be a database call.
       persons.push({ ...person, id: uuid(), age: crypto.randomInt(15, 50) });
-      savePersons(persons, updatePersons);
+      saveInFile(persons, updateInMemory);
 
       // we need to return the person, if you want.
       return person;
@@ -88,9 +97,9 @@ const resolvers = {
     deletePerson: (_, args) => {
       const person = { ...args };
       if (persons.find((p) => p.name === person.name)) {
-        savePersons(
+        saveInFile(
           persons.filter((p) => p.name !== person.name),
-          updatePersons
+          updateInMemory
         );
         return person;
       }
@@ -106,7 +115,7 @@ const resolvers = {
       const person = persons[personIndex];
       const updatedPerson = { ...person, phone: args.phone };
       persons[personIndex] = updatedPerson;
-      updatePersons(persons);
+      updateInMemory(persons);
       return updatedPerson;
     },
   },
@@ -121,6 +130,16 @@ const server = new ApolloServer({
 // Passing an ApolloServer instance to the `startStandaloneServer` function:
 const { url } = await startStandaloneServer(server, {
   listen: { port: 4000 },
+  context: async () => {
+    const { cache } = server;
+    return {
+      // We create new instances of our data sources with each request,
+      // passing in our server's cache.
+      dataSources: {
+        usersAPI: new UsersAPI({ cache }),
+      },
+    };
+  },
 });
 
 console.log(`🚀  Server ready at: ${url}`);

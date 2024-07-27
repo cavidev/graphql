@@ -145,7 +145,7 @@ Mutation: {
       const person = persons[personIndex];
       const updatedPerson = { ...person, phone: args.phone };
       persons[personIndex] = updatedPerson;
-      updatePersons(persons);
+      updateInMemory(persons);
       return updatedPerson;
     },
   }
